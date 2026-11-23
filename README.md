@@ -1,5 +1,4 @@
 # Exp3-Sobel-edge-detection-filter-using-CUDA-to-enhance-the-performance-of-image-processing-tasks.
-<h3>AIM: To utilize CUDA to parallelize the Sobel filter implementation for efficient processing of images.</h3>
 <h3>NANDIKA S</h3>
 <h3>212224230175</h3>
 <h3>EX. NO</h3>
@@ -115,6 +114,8 @@ plt.show()
 
 ## OUTPUT:
 <img width="639" height="583" alt="image" src="https://github.com/user-attachments/assets/280629b4-ddc6-48ce-ba76-27362dc17b6a" />
+
+
 ## RESULT:
 Thus the program has been executed by using CUDA to 2.282023 ms.
 
