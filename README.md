@@ -36,71 +36,72 @@ Compare the output of your CUDA Sobel filter with a CPU-based Sobel filter imple
 Discuss the differences in execution time and output quality.
 
 ## PROGRAM:
-!pip install git+https://github.com/andreinechaev/nvcc4jupyter.git
-%load_ext nvcc4jupyter
-!nvcc --version
-%load_ext nvcc4jupyter
-from pathlib import Path
 
-file_path = Path('/content/rose.webp')
-if file_path.exists():
-    print("File exists!")
-else:
-    print("File does not exist!")
-import os
-print("Current Working Directory:", os.getcwd())
-from google.colab import files
-uploaded = files.upload()
-pwd
-ls /content/pngtree-holstein-cow-png-image_20610191 (1).png
-#ls -l /content/images.jpeg
-import cv2
-image = cv2.imread('/content/pngtree-holstein-cow-png-image_20610191.png')
-if image is None:
-    print("Error: Image not found or unable to read the image.")
-else:
-    print("Image read successfully.")
-%%writefile sobelEdgeDetectionFilter.cu
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <cuda_runtime.h>
-#include <opencv2/opencv.hpp>
-
-using namespace cv;
-
-__global__ void sobelFilter(unsigned char *srcImage, unsigned char *dstImage, unsigned int width, unsigned int height) {
-    int x = blockIdx.x * blockDim.x + threadIdx.x;
-    int y = blockIdx.y * blockDim.y + threadIdx.y;
-    float Kx[3][3] = { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
-    float Ky[3][3] = { 1, 2, 1, 0, 0, 0, -1, -2, -1 };
-    // only threads inside image will write results
-    if ((x >= 3 / 2) && (x < (width - 3 / 2)) && (y >= 3 / 2) && (y < (height - 3 / 2))) {
-        // Gradient in x-direction
-        float Gx = 0;
-        // Loop inside the filter to average pixel values
-        for (int ky = -3 / 2; ky <= 3 / 2; ky++) {
-            for (int kx = -3 / 2; kx <= 3 / 2; kx++) {
-                float fl = srcImage[((y + ky) * width + (x + kx))];
-                Gx += fl * Kx[ky + 3 / 2][kx + 3 / 2];
+    !pip install git+https://github.com/andreinechaev/nvcc4jupyter.git
+    %load_ext nvcc4jupyter
+    !nvcc --version
+    %load_ext nvcc4jupyter
+    from pathlib import Path
+    
+    file_path = Path('/content/rose.webp')
+    if file_path.exists():
+        print("File exists!")
+    else:
+        print("File does not exist!")
+    import os
+    print("Current Working Directory:", os.getcwd())
+    from google.colab import files
+    uploaded = files.upload()
+    pwd
+    ls /content/pngtree-holstein-cow-png-image_20610191 (1).png
+    #ls -l /content/images.jpeg
+    import cv2
+    image = cv2.imread('/content/pngtree-holstein-cow-png-image_20610191.png')
+    if image is None:
+        print("Error: Image not found or unable to read the image.")
+    else:
+        print("Image read successfully.")
+    %%writefile sobelEdgeDetectionFilter.cu
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <math.h>
+    #include <cuda_runtime.h>
+    #include <opencv2/opencv.hpp>
+    
+    using namespace cv;
+    
+    __global__ void sobelFilter(unsigned char *srcImage, unsigned char *dstImage, unsigned int width, unsigned int height) {
+        int x = blockIdx.x * blockDim.x + threadIdx.x;
+        int y = blockIdx.y * blockDim.y + threadIdx.y;
+        float Kx[3][3] = { -1, 0, 1, -2, 0, 2, -1, 0, 1 };
+        float Ky[3][3] = { 1, 2, 1, 0, 0, 0, -1, -2, -1 };
+        // only threads inside image will write results
+        if ((x >= 3 / 2) && (x < (width - 3 / 2)) && (y >= 3 / 2) && (y < (height - 3 / 2))) {
+            // Gradient in x-direction
+            float Gx = 0;
+            // Loop inside the filter to average pixel values
+            for (int ky = -3 / 2; ky <= 3 / 2; ky++) {
+                for (int kx = -3 / 2; kx <= 3 / 2; kx++) {
+                    float fl = srcImage[((y + ky) * width + (x + kx))];
+                    Gx += fl * Kx[ky + 3 / 2][kx + 3 / 2];
+                }
             }
-        }
-        float Gx_abs = Gx < 0 ? -Gx : Gx;
-        // Gradient in y-direction
-        float Gy = 0;
-        // Loop inside the filter to average pixel values
-        for (int ky = -3 / 2; ky <= 3 / 2; ky++) {
-            for (int kx = -3 / 2; kx <= 3 / 2; kx++) {
-                float fl = srcImage[((y + ky) * width + (x + kx))];
-                Gy += fl * Ky[ky + 3 / 2][kx + 3 / 2];
+            float Gx_abs = Gx < 0 ? -Gx : Gx;
+            // Gradient in y-direction
+            float Gy = 0;
+            // Loop inside the filter to average pixel values
+            for (int ky = -3 / 2; ky <= 3 / 2; ky++) {
+                for (int kx = -3 / 2; kx <= 3 / 2; kx++) {
+                    float fl = srcImage[((y + ky) * width + (x + kx))];
+                    Gy += fl * Ky[ky + 3 / 2][kx + 3 / 2];
+                }
             }
+            float Gy_abs =   Gy < 0 ? -Gy : Gy;
+            dstImage[(y * width + x)] = Gx_abs + Gy_abs;
         }
-        float Gy_abs =   Gy < 0 ? -Gy : Gy;
-        dstImage[(y * width + x)] = Gx_abs + Gy_abs;
     }
-}
-import cv2
-from matplotlib import pyplot as plt
+    import cv2
+    from matplotlib import pyplot as plt
 
 # Read and display the output image
 output_image_path = '/content/rose.webp'
