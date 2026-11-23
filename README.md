@@ -1,5 +1,5 @@
 # Exp3-Sobel-edge-detection-filter-using-CUDA-to-enhance-the-performance-of-image-processing-tasks.
-<h3>AIM:</h3>
+<h3>AIM: To utilize CUDA to parallelize the Sobel filter implementation for efficient processing of images.</h3>
 <h3>NANDIKA S</h3>
 <h3>212224230175</h3>
 <h3>EX. NO</h3>
