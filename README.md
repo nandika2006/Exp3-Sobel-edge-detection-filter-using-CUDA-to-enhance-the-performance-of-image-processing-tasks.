@@ -115,19 +115,20 @@ plt.show()
 ## OUTPUT:
 <img width="639" height="583" alt="image" src="https://github.com/user-attachments/assets/280629b4-ddc6-48ce-ba76-27362dc17b6a" />
 ## RESULT:
-Thus the program has been executed by using CUDA to ________________.
+Thus the program has been executed by using CUDA to 2.282023 ms.
 
 Questions:
 
-What challenges did you face while implementing the Sobel filter for color images?
-How did changing the block size influence the performance of your CUDA implementation?
-What were the differences in output between the CUDA and CPU implementations? Discuss any discrepancies.
-Suggest potential optimizations for improving the performance of the Sobel filter.
+1. *Challenges Implementing Sobel for Color Images*:
+   - Converting images to grayscale in the kernel increased complexity. Memory management and ensuring correct indexing for color to grayscale conversion required attention.
 
-Deliverables:
+2. *Influence of Block Size*:
+   - Smaller block sizes (e.g., 8x8) were efficient for smaller images but less so for larger ones, where larger blocks (e.g., 32x32) reduced overhead.
 
-Modified CUDA code with comments explaining your changes.
-A report summarizing your findings, including graphs of execution times and a comparison of outputs.
-Answers to the questions posed in the experiment.
-Tools Required:
+3. *CUDA vs. CPU Output Differences*:
+   - The CUDA implementation was faster, with minor variations in edge sharpness due to rounding differences. CPU output took significantly more time than the GPU.
+
+4. *Optimization Suggestions*:
+   - Use shared memory in the CUDA kernel to reduce global memory access times.
+   - Experiment with adaptive block sizes for larger images.
 
